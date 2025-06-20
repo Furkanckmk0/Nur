@@ -13,7 +13,7 @@
     h1 { font-family: 'Georgia', serif; font-size: 50px; color: #fff; text-shadow: 3px 3px 8px rgba(0,0,0,0.8); margin-bottom: 30px; }
     .btn { margin: 10px; padding: 14px 28px; font-family: sans-serif; font-size: 22px;
       background: rgba(255,255,255,0.9); border: none; border-radius: 6px; cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.3s;
     }
     .btn:hover { background: rgba(255,255,255,1); }
     .heart { position: absolute; font-size: 24px; color: purple; animation: floatUp 6s linear forwards; }
@@ -27,7 +27,6 @@
   </style>
 </head>
 <body>
-  <!-- Autoplay için workaround: video yerine audio öğesi kullanmak -->
   <video id="bgMusic" src="ben-sende-tutuklu-kaldim.mp3" autoplay muted loop playsinline style="display:none"></video>
   <canvas id="fireworks"></canvas>
 
@@ -48,6 +47,7 @@
     const messageDiv = document.getElementById('message');
     const body = document.body;
     let heartInterval;
+    let noClicks = 0;
 
     function spawnHeart() {
       const h = document.createElement('div'); h.className = 'heart'; h.textContent = '💜';
@@ -72,8 +72,8 @@
         'Hayatıma ışık kattığın için teşekkür ederim.',
         'Seninle her anı paylaştığım için çok mutluyum.',
         'Sonsuza dek birlikte gülmek, öğrenmek ve hayal kurmak istiyorum.',
-        '“Kalbim seninle birlikte her adımda heyecanla çarpıyor. Hayat yolculuğuma seninle devam etmek bir ayrıcalık, teşekkür ederim.”',
-        'Umarım Hayallerimizin birbirimizin desteğiyle gerçekleştiği nice uzun yıllar görürüz.',
+        'Ruh eşim olur musun?',
+        'Hayatımın yol arkadaşı sensin.',
         'Gülüşün dünyamı aydınlatıyor.',
         'Seninle her şey mümkün.'
       ]; let i = 0;
@@ -86,12 +86,10 @@
     }
 
     window.onload = () => {
-      // iOS/Chrome vsync engelleri: video ile sesi oynatmaya zorluyoruz
-      bgMusic.muted = false; bgMusic.play().catch(() => {
-        // fallback: kullanıcının tıklamasını bekle
+      bgMusic.muted = false;
+      bgMusic.play().catch(() => {
         overlay.addEventListener('click', () => bgMusic.play(), { once: true });
       });
-
       startHearts(); launchFireworks(2);
     };
 
@@ -102,9 +100,20 @@
     });
 
     noButton.addEventListener('click', () => {
-      bgMusic.pause(); stopHearts(); overlay.style.display = 'none';
-      messageDiv.textContent = 'Üzülme, senin kararın her zaman benim için değerli.';
-      messageDiv.style.opacity = 1;
+      noClicks++;
+      // Evet butonunu büyüt
+      const scale = 1 + 0.2 * noClicks;
+      yesButton.style.transform = `scale(${scale})`;
+      if (noClicks >= 3) {
+        noButton.remove();
+        // Evet butonunu tüm ekrana yay
+        yesButton.style.position = 'absolute';
+        yesButton.style.top = '50%'; yesButton.style.left = '50%';
+        yesButton.style.transform = `translate(-50%,-50%) scale(${scale})`;
+        yesButton.style.width = '100vw';
+        yesButton.style.height = '100vh';
+        yesButton.style.fontSize = '5em';
+      }
     });
   </script>
 </body>
