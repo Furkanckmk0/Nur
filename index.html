@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Benimle Çıkar mısın?</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body { background: url('Roma-1.jpg') center/cover no-repeat fixed; position: relative; }
+    #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+    }
+    h1 { font-family: 'Georgia', serif; font-size: 50px; color: #fff; text-shadow: 3px 3px 8px rgba(0,0,0,0.8); margin-bottom: 30px; }
+    .btn { margin: 10px; padding: 14px 28px; font-family: sans-serif; font-size: 22px;
+      background: rgba(255,255,255,0.9); border: none; border-radius: 6px; cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover { background: rgba(255,255,255,1); }
+    .heart { position: absolute; font-size: 24px; color: purple; animation: floatUp 6s linear forwards; }
+    @keyframes floatUp { to { transform: translateY(-120vh) rotate(360deg); opacity: 0; } }
+    #message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; font-family: 'Georgia', serif; font-style: italic; font-size: 32px;
+      color: pink; text-shadow: 2px 2px 8px rgba(255,192,203,0.7); opacity: 0; transition: opacity 1s;
+      width: 80%; line-height: 1.5;
+    }
+    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <!-- Autoplay için workaround: video yerine audio öğesi kullanmak -->
+  <video id="bgMusic" src="ben-sende-tutuklu-kaldim.mp3" autoplay muted loop playsinline style="display:none"></video>
+  <canvas id="fireworks"></canvas>
+
+  <div id="overlay">
+    <h1>Benimle Çıkar mısın?</h1>
+    <button id="yesButton" class="btn">Evet</button>
+    <button id="noButton" class="btn">Hayır</button>
+  </div>
+
+  <div id="message"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+  <script>
+    const bgMusic = document.getElementById('bgMusic');
+    const overlay = document.getElementById('overlay');
+    const yesButton = document.getElementById('yesButton');
+    const noButton = document.getElementById('noButton');
+    const messageDiv = document.getElementById('message');
+    const body = document.body;
+    let heartInterval;
+
+    function spawnHeart() {
+      const h = document.createElement('div'); h.className = 'heart'; h.textContent = '💜';
+      h.style.left = Math.random() * 100 + 'vw'; h.style.bottom = '-2vh';
+      h.style.fontSize = (18 + Math.random() * 36) + 'px'; body.appendChild(h);
+      setTimeout(() => h.remove(), 6000);
+    }
+    function startHearts() { heartInterval = setInterval(spawnHeart, 700); }
+    function stopHearts() { clearInterval(heartInterval); }
+
+    function launchFireworks(c) {
+      const end = Date.now() + 3500;
+      (function frame() {
+        confetti({ particleCount: c, spread: 360, startVelocity: 25, origin: { x: Math.random(), y: Math.random() * 0.5 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+    }
+
+    function showMessages() {
+      const msgs = [
+        `Bu Roma'nın aşıklar şehri olduğunu biliyorum, aşıklar ülkesi olduğunu biliyorum; buna ithafen sana burada çıkma teklifi etmek istedim. Her ülkeyi gezdireceğim tabii ki ama burası sadece bizim başlangıcımız olacak.`,
+        'Hayatıma ışık kattığın için teşekkür ederim.',
+        'Seninle her anı paylaştığım için çok mutluyum.',
+        'Sonsuza dek birlikte gülmek, öğrenmek ve hayal kurmak istiyorum.',
+        '“Kalbim seninle birlikte her adımda heyecanla çarpıyor. Hayat yolculuğuma seninle devam etmek bir ayrıcalık, teşekkür ederim.”',
+        'Umarım Hayallerimizin birbirimizin desteğiyle gerçekleştiği nice uzun yıllar görürüz.',
+        'Gülüşün dünyamı aydınlatıyor.',
+        'Seninle her şey mümkün.'
+      ]; let i = 0;
+      function next() {
+        if (i >= msgs.length) return;
+        messageDiv.textContent = msgs[i++]; messageDiv.style.opacity = 1;
+        setTimeout(() => { messageDiv.style.opacity = 0; setTimeout(next, 800); }, 4000);
+      }
+      next();
+    }
+
+    window.onload = () => {
+      // iOS/Chrome vsync engelleri: video ile sesi oynatmaya zorluyoruz
+      bgMusic.muted = false; bgMusic.play().catch(() => {
+        // fallback: kullanıcının tıklamasını bekle
+        overlay.addEventListener('click', () => bgMusic.play(), { once: true });
+      });
+
+      startHearts(); launchFireworks(2);
+    };
+
+    yesButton.addEventListener('click', () => {
+      stopHearts(); startHearts(); launchFireworks(3);
+      body.style.background = "url('IMG_3871.JPG') center/cover no-repeat fixed";
+      overlay.style.display = 'none'; showMessages();
+    });
+
+    noButton.addEventListener('click', () => {
+      bgMusic.pause(); stopHearts(); overlay.style.display = 'none';
+      messageDiv.textContent = 'Üzülme, senin kararın her zaman benim için değerli.';
+      messageDiv.style.opacity = 1;
+    });
+  </script>
+</body>
+</html>
